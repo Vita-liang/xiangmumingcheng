@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>医学洞察分析报告_20260416</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --p900:#5A0039;--p800:#830051;--p700:#9A3374;--p600:#B36697;
+  --p500:#CC99B9;--p100:#E6CCDC;--p50:#F5EEF3;
+  --c-amber:#F0AB00;--c-teal:#68D2DF;--c-lime:#C4D600;--c-sage:#9DB0AC;
+  --ink:#2A0018;--ink-2:#4A1030;--ink-light:#7A4060;
+  --text:#3A1828;--rule:#D4A8C0;--rule-light:#EAD4E2;
+  --bg:#FFFFFF;--paper:#FCF7FA;--surface:#F8F0F5;
+  --sans:'Inter','Noto Sans SC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+html{font-size:14px;}
+body{font-family:var(--sans);background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.6;}
+
+/* ── 品牌条 ── */
+.brand-bar{height:6px;background:linear-gradient(90deg,var(--p900),var(--p800) 30%,var(--p700) 55%,var(--c-amber) 78%,var(--c-teal));}
+
+/* ── 页面容器 ── */
+.page{max-width:1200px;margin:0 auto;padding:0 48px 80px;}
+
+/* ── 报告头部 ── */
+.rpt-header{display:grid;grid-template-columns:1fr auto;align-items:stretch;border-bottom:1px solid var(--rule-light);margin-bottom:32px;}
+.header-left{padding:36px 40px 32px 0;border-right:1px solid var(--rule-light);}
+.header-badge{display:inline-flex;align-items:center;gap:8px;background:var(--p50);border:1px solid var(--p100);color:var(--p800);font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:2px;margin-bottom:16px;width:fit-content;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--p700);animation:blink 2.4s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.rpt-title{font-size:22px;font-weight:700;color:var(--p800);letter-spacing:-.02em;line-height:1.2;margin-bottom:6px;}
+.rpt-question{font-size:13px;font-weight:500;color:var(--ink-2);background:var(--surface);border-left:3px solid var(--p600);padding:8px 14px;margin:12px 0;border-radius:0 3px 3px 0;line-height:1.5;}
+.rpt-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.meta-chip{font-size:11px;color:var(--ink-light);background:var(--surface);border:1px solid var(--rule-light);padding:3px 11px;border-radius:20px;}
+.meta-chip strong{color:var(--p800);font-weight:600;}
+
+/* 头部右侧总览 */
+.header-right{padding:28px 0 28px 36px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-width:220px;}
+.overview-donut-wrap{position:relative;width:120px;height:120px;}
+.overview-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.overview-n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--p800);line-height:1;}
+.overview-lbl{font-size:9px;color:var(--ink-light);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+.overview-chips{display:flex;flex-direction:column;gap:6px;width:100%;}
+.ov-chip{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text);}
+.ov-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.ov-pct{font-family:var(--mono);font-weight:600;color:var(--ink);margin-left:auto;}
+
+/* ── KPI 带 ── */
+.kpi-band{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:40px;}
+.kpi-card{background:var(--bg);border:1px solid var(--rule-light);border-top:4px solid var(--p600);padding:18px 20px 14px;box-shadow:0 2px 8px rgba(131,0,81,.04);}
+.kpi-card:nth-child(1){border-top-color:var(--p800);}
+.kpi-card:nth-child(2){border-top-color:var(--p700);}
+.kpi-card:nth-child(3){border-top-color:var(--c-teal);}
+.kpi-card:nth-child(4){border-top-color:var(--c-amber);}
+.kpi-icon{font-size:18px;margin-bottom:8px;}
+.kpi-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;}
+.kpi-val{font-size:34px;font-weight:700;color:var(--p800);line-height:1;letter-spacing:-.02em;}
+.kpi-card:nth-child(3) .kpi-val,.kpi-card:nth-child(4) .kpi-val{color:var(--ink-2);}
+.kpi-unit{font-size:11px;color:var(--ink-light);margin-top:4px;}
+
+/* ── 章节大标题 ── */
+.section{margin-bottom:52px;}
+.sec-header{display:flex;align-items:stretch;margin-bottom:20px;}
+.sec-num{background:var(--p800);color:#fff;font-family:var(--mono);font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;width:56px;flex-shrink:0;}
+.sec-num-big{font-size:20px;line-height:1;letter-spacing:-.02em;}
+.sec-num-sub{font-size:6px;letter-spacing:.16em;opacity:.6;margin-top:2px;text-transform:uppercase;}
+.sec-title-block{background:var(--p50);border-top:1px solid var(--p100);border-bottom:1px solid var(--p100);padding:10px 22px;display:flex;flex-direction:column;justify-content:center;flex:1;}
+.sec-title-zh{font-size:17px;font-weight:700;color:var(--p800);line-height:1.2;}
+.sec-title-en{font-size:10px;color:var(--ink-light);letter-spacing:.05em;margin-top:2px;}
+
+/* ── 图表卡片（小标题） ── */
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.chart-card{background:var(--bg);border:1px solid var(--rule-light);overflow:hidden;box-shadow:0 1px 5px rgba(131,0,81,.04);}
+.chart-card-head{background:var(--surface);border-left:3px solid var(--p600);padding:9px 16px 8px;display:flex;align-items:baseline;justify-content:space-between;}
+.chart-card-title{font-size:12px;font-weight:600;color:var(--p800);}
+.chart-card-desc{font-size:10px;color:var(--ink-light);font-style:italic;}
+.chart-card-body{padding:16px 20px 14px;}
+.chart-wrap{position:relative;width:100%;}
+
+/* ── 选项卡片（核心） ── */
+.opt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.opt-card{background:var(--bg);border:1px solid var(--rule-light);border-radius:3px;overflow:hidden;box-shadow:0 2px 10px rgba(131,0,81,.07);display:flex;flex-direction:column;}
+.opt-card-header{padding:14px 16px 0;position:relative;overflow:hidden;}
+.opt-tag{font-family:var(--mono);font-size:22px;font-weight:700;color:rgba(255,255,255,.9);display:block;line-height:1;margin-bottom:4px;}
+.opt-card-title{font-size:12px;font-weight:500;color:rgba(255,255,255,.88);line-height:1.45;margin-bottom:10px;}
+.opt-pct-badge{position:absolute;top:12px;right:14px;font-family:var(--mono);font-size:20px;font-weight:700;color:#fff;}
+.opt-accent-bar{height:3px;margin:-1px -16px 0;}
+.opt-card-body{padding:14px 16px 18px;flex:1;display:flex;flex-direction:column;gap:10px;}
+.opt-stat-row{display:flex;gap:16px;}
+.opt-stat{display:flex;flex-direction:column;align-items:flex-start;}
+.opt-stat-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--p800);line-height:1;}
+.opt-stat-lbl{font-size:10px;color:var(--ink-light);margin-top:2px;}
+
+/* ── 医生原话 ── */
+.reason-block{margin-bottom:10px;}
+.reason-title{display:flex;align-items:flex-start;gap:8px;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:5px;line-height:1.4;}
+.reason-num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--p800);color:#fff;border-radius:50%;font-family:var(--mono);font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px;}
+blockquote.doctor-quote{border-left:2px solid var(--p500);padding:5px 10px;margin:4px 0 4px 26px;font-size:11.5px;color:var(--ink-light);font-style:italic;line-height:1.55;background:var(--p50);}
+
+/* ── 下钻表格 ── */
+.drill-table{width:100%;border-collapse:collapse;font-size:12px;}
+.drill-table th{background:var(--p800);color:#fff;padding:8px 12px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.06em;font-weight:500;}
+.drill-table th:not(:first-child){text-align:right;}
+.drill-table td{padding:7px 12px;border-bottom:1px solid var(--rule-light);color:var(--text);}
+.drill-table td.num{font-family:var(--mono);font-size:11px;text-align:right;}
+.drill-table td.pos{color:#2a7a2a;font-weight:600;}
+.drill-table td.neg{color:#b00000;font-weight:600;}
+.drill-table tr.row-warn td{background:#fffbf0;}
+.drill-table tr:hover td{background:var(--p50);}
+.warn-tag{display:inline-block;background:var(--c-amber);color:#5a4000;font-size:9px;padding:1px 6px;border-radius:2px;margin-left:6px;font-family:var(--mono);}
+
+/* ── 洞察文本框 ── */
+.insight-box{background:var(--surface);border:1px solid var(--rule-light);border-left:4px solid var(--p600);padding:14px 18px;border-radius:0 4px 4px 0;font-size:12.5px;line-height:1.72;color:var(--text);margin-bottom:12px;}
+.risk-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule-light);font-size:12.5px;line-height:1.6;}
+.risk-item:last-child{border-bottom:none;}
+.risk-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+/* ── 结论卡片 ── */
+.conclusion-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.conclusion-card{background:var(--bg);border:1px solid var(--rule-light);border-top:3px solid var(--p700);padding:16px 20px 18px;}
+.conc-title{font-size:12px;font-weight:700;color:var(--p800);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.conc-body{font-size:12.5px;line-height:1.7;color:var(--text);}
+
+/* ── 通用 ── */
+.no-data{font-size:12px;color:var(--ink-light);text-align:center;padding:24px;font-style:italic;}
+.section-desc{font-size:12.5px;color:var(--text);line-height:1.7;margin-bottom:16px;}
+
+/* ── 页脚 ── */
+.rpt-footer{margin-top:60px;padding:14px 0 0;border-top:2px solid var(--p50);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.footer-title{font-size:13px;font-weight:700;color:var(--p800);}
+.footer-text{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--rule);}
+</style>
+</head>
+<body>
+
+<div class="brand-bar"></div>
+<div class="page">
+
+<!-- ══ 报告头部 ══ -->
+<header class="rpt-header">
+  <div class="header-left">
+    <div class="header-badge"><span class="badge-dot"></span>医学事务部 · 内部机密文件 · KOL 洞察报告</div>
+    <h1 class="rpt-title">医学洞察分析报告</h1>
+    <div class="rpt-question">📋 调研议题：初诊 IV 期 HER2+ 晚期乳腺癌一线治疗观点</div>
+    <div class="rpt-meta">
+      <span class="meta-chip">总样本量 <strong>45</strong> 人</span>
+      <span class="meta-chip">观点维度 <strong>5</strong> 个</span>
+      <span class="meta-chip">生成时间（北京）<strong>2026年04月16日 10:41</strong></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="overview-donut-wrap">
+      <canvas id="overviewDonut"></canvas>
+      <div class="overview-center">
+        <div class="overview-n">45</div>
+        <div class="overview-lbl">总样本</div>
+      </div>
+    </div>
+    <div class="overview-chips">
+      
+      <div class="ov-chip">
+        <div class="ov-dot" style="background:#830051;"></div>
+        <span>A</span>
+        <span class="ov-pct">38.5%</span>
+      </div>
+      <div class="ov-chip">
+        <div class="ov-dot" style="background:#9A3374;"></div>
+        <span>B</span>
+        <span class="ov-pct">24.4%</span>
+      </div>
+      <div class="ov-chip">
+        <div class="ov-dot" style="background:#B36697;"></div>
+        <span>C</span>
+        <span class="ov-pct">28.9%</span>
+      </div>
+      <div class="ov-chip">
+        <div class="ov-dot" style="background:#CC99B9;"></div>
+        <span>D</span>
+        <span class="ov-pct">6.7%</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ KPI 带 ══ -->
+<div class="kpi-band">
+  <div class="kpi-card">
+    <div class="kpi-icon">👥</div>
+    <div class="kpi-lbl">调研总样本</div>
+    <div class="kpi-val">45</div>
+    <div class="kpi-unit">位受访医生</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🏆</div>
+    <div class="kpi-lbl">最高认同选项</div>
+    <div class="kpi-val">A</div>
+    <div class="kpi-unit">38.5% 支持率</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🗺️</div>
+    <div class="kpi-lbl">省份维度</div>
+    <div class="kpi-val">4</div>
+    <div class="kpi-unit">个省份有效数据</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-icon">🔬</div>
+    <div class="kpi-lbl">科室维度</div>
+    <div class="kpi-val">4</div>
+    <div class="kpi-unit">个科室有效数据</div>
+  </div>
+</div>
+
+<!-- ══ 一、分析目标与样本范围 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">一</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">分析目标与样本范围</div>
+      <div class="sec-title-en">Objective &amp; Sample Scope</div>
+    </div>
+  </div>
+  <div class="insight-box">
+    本次调研聚焦于<strong>初诊 IV 期 HER2+ 晚期乳腺癌一线治疗</strong>的临床决策观点，对比初诊 IV 期患者与早期经治复发患者两类人群的治疗理念差异。样本共 <strong>45</strong> 位受访医生，涵盖 4 个省份、4 个临床科室，数据经医学标注后进行结构化分析。
+  </div>
+  <div class="insight-box" style="border-left-color:var(--c-teal);margin-top:8px;"><strong>数据总结：</strong>受访医生中，多数认为初诊IV期患者需要快速缩瘤（A选项），其次是需克服原发耐药（C选项）。</div>
+</div>
+
+<!-- ══ 二、总体观点分布 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">二</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">总体观点分布</div>
+      <div class="sec-title-en">Overall Opinion Distribution</div>
+    </div>
+  </div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <span class="chart-card-title">选项认同度分布（饼图）</span>
+        <span class="chart-card-desc">各观点占总样本比例</span>
+      </div>
+      <div class="chart-card-body">
+        <div class="chart-wrap" style="height:240px;"><canvas id="optPie"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <span class="chart-card-title">选项认同度排序（柱状图）</span>
+        <span class="chart-card-desc">按占比降序</span>
+      </div>
+      <div class="chart-card-body">
+        <div class="chart-wrap" style="height:240px;"><canvas id="optBar"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 三、核心诉求原因与医生原话 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">三</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">核心诉求原因与医生原话</div>
+      <div class="sec-title-en">Key Reasons &amp; Representative Quotes</div>
+    </div>
+  </div>
+  <div class="opt-grid">
+    
+    <div class="opt-card">
+      <div class="opt-card-header" style="background:linear-gradient(135deg,#830051 0%,#9A3374 60%,#B36697 100%);">
+        <span class="opt-tag">A</span>
+        <div class="opt-card-title">A. 初诊IV期患者治疗紧迫性更高，需要快速缩瘤</div>
+        <div class="opt-pct-badge">38.5%</div>
+        <div class="opt-accent-bar" style="background:#F0AB00;"></div>
+      </div>
+      <div class="opt-card-body">
+        <div class="opt-stat-row">
+          <span class="opt-stat"><span class="opt-stat-val">18</span><span class="opt-stat-lbl">人选择</span></span>
+          <span class="opt-stat"><span class="opt-stat-val">38.5%</span><span class="opt-stat-lbl">占比</span></span>
+        </div>
+        <div class="reason-block">
+          <div class="reason-title"><span class="reason-num">1</span>初诊患者肿瘤负荷高，需快速缩瘤缓解症状</div>
+          <blockquote class="doctor-quote">"初诊的病人往往肿瘤负荷很大，首先需要快速让肿瘤缩小"</blockquote><blockquote class="doctor-quote">"这类患者一旦明确诊断就需要立即控制病情，不能等待"</blockquote>
+        </div><div class="reason-block">
+          <div class="reason-title"><span class="reason-num">2</span>生存质量改善需要迅速见效</div>
+          <blockquote class="doctor-quote">"患者症状明显，快速响应是首要目标"</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="opt-card">
+      <div class="opt-card-header" style="background:linear-gradient(135deg,#5A0039 0%,#830051 60%,#9A3374 100%);">
+        <span class="opt-tag">B</span>
+        <div class="opt-card-title">B. 初诊IV期患者更易达到CR，需要深度持久缓解</div>
+        <div class="opt-pct-badge">24.4%</div>
+        <div class="opt-accent-bar" style="background:#68D2DF;"></div>
+      </div>
+      <div class="opt-card-body">
+        <div class="opt-stat-row">
+          <span class="opt-stat"><span class="opt-stat-val">11</span><span class="opt-stat-lbl">人选择</span></span>
+          <span class="opt-stat"><span class="opt-stat-val">24.4%</span><span class="opt-stat-lbl">占比</span></span>
+        </div>
+        <div class="reason-block">
+          <div class="reason-title"><span class="reason-num">1</span>初诊患者免疫功能较好，更易达到CR</div>
+          <blockquote class="doctor-quote">"未经化疗的患者骨髓储备好，耐受性强，CR率更高"</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="opt-card">
+      <div class="opt-card-header" style="background:linear-gradient(135deg,#830051 0%,#9A3374 50%,#68D2DF 100%);">
+        <span class="opt-tag">C</span>
+        <div class="opt-card-title">C. 初诊IV期患者无法判断对H的敏感性，需克服原发耐药</div>
+        <div class="opt-pct-badge">28.9%</div>
+        <div class="opt-accent-bar" style="background:#C4D600;"></div>
+      </div>
+      <div class="opt-card-body">
+        <div class="opt-stat-row">
+          <span class="opt-stat"><span class="opt-stat-val">13</span><span class="opt-stat-lbl">人选择</span></span>
+          <span class="opt-stat"><span class="opt-stat-val">28.9%</span><span class="opt-stat-lbl">占比</span></span>
+        </div>
+        <div class="reason-block">
+          <div class="reason-title"><span class="reason-num">1</span>原发耐药风险不可忽视</div>
+          <blockquote class="doctor-quote">"初诊患者HER2靶向治疗敏感性未知，需要有克服原发耐药的手段"</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="opt-card">
+      <div class="opt-card-header" style="background:linear-gradient(135deg,#6B0044 0%,#830051 55%,#C4D600 100%);">
+        <span class="opt-tag">D</span>
+        <div class="opt-card-title">D. 现有方案疗效安全性均已满意</div>
+        <div class="opt-pct-badge">6.7%</div>
+        <div class="opt-accent-bar" style="background:#F0AB00;"></div>
+      </div>
+      <div class="opt-card-body">
+        <div class="opt-stat-row">
+          <span class="opt-stat"><span class="opt-stat-val">3</span><span class="opt-stat-lbl">人选择</span></span>
+          <span class="opt-stat"><span class="opt-stat-val">6.7%</span><span class="opt-stat-lbl">占比</span></span>
+        </div>
+        <div class="reason-block">
+          <div class="reason-title"><span class="reason-num">1</span>现有双靶方案已足够</div>
+          <blockquote class="doctor-quote">"目前HP+化疗已经是标准方案，效果满意"</blockquote>
+        </div>
+      </div>
+    </div>
+    <div class="opt-card">
+      <div class="opt-card-header" style="background:linear-gradient(135deg,#830051 0%,#B36697 60%,#F0AB00 100%);">
+        <span class="opt-tag">E</span>
+        <div class="opt-card-title">E. 其他</div>
+        <div class="opt-pct-badge">1.5%</div>
+        <div class="opt-accent-bar" style="background:#68D2DF;"></div>
+      </div>
+      <div class="opt-card-body">
+        <div class="opt-stat-row">
+          <span class="opt-stat"><span class="opt-stat-val">—</span><span class="opt-stat-lbl">人选择</span></span>
+          <span class="opt-stat"><span class="opt-stat-val">1.5%</span><span class="opt-stat-lbl">占比</span></span>
+        </div>
+        <p class="no-data">暂无医生原话数据</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 四、省份下钻分析 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">四</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">省份下钻分析</div>
+      <div class="sec-title-en">Province-Level Drilldown</div>
+    </div>
+  </div>
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <span class="chart-card-title">各省份选项占比（条形图）</span>
+        <span class="chart-card-desc">组内占比 share_in_bucket_pct</span>
+      </div>
+      <div class="chart-card-body">
+        <div class="chart-wrap" style="height:180px;">
+          <canvas id="provinceBar"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">
+        <span class="chart-card-title">省份百分点差异</span>
+        <span class="chart-card-desc">vs. 整体均值的偏差（pct_point_diff）</span>
+      </div>
+      <div class="chart-card-body">
+        <div class="chart-wrap" style="height:180px;">
+          <canvas id="provinceDiff"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <table class="drill-table">
+      <thead><tr>
+        <th>省份</th><th>样本量</th><th>组内占比</th><th>总体占比</th><th>百分点差</th>
+      </tr></thead>
+      <tbody><tr class="">
+          <td>北京</td>
+          <td class="num">12</td>
+          <td class="num">42.1%</td>
+          <td class="num">38.5%</td>
+          <td class="num pos">+3.6</td>
+        </tr><tr class="">
+          <td>上海</td>
+          <td class="num">10</td>
+          <td class="num">35.8%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-2.7</td>
+        </tr><tr class="">
+          <td>广东</td>
+          <td class="num">8</td>
+          <td class="num">40.2%</td>
+          <td class="num">38.5%</td>
+          <td class="num pos">+1.7</td>
+        </tr><tr class="row-warn">
+          <td>浙江<span class="warn-tag">样本量有限，仅供参考</span></td>
+          <td class="num">3</td>
+          <td class="num">28.5%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-10.0</td>
+        </tr></tbody>
+    </table>
+</div>
+
+<!-- ══ 五、科室下钻分析 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">五</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">科室下钻分析</div>
+      <div class="sec-title-en">Department-Level Drilldown</div>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-card-head">
+      <span class="chart-card-title">各科室选项认同度</span>
+      <span class="chart-card-desc">组内占比 vs 总体占比</span>
+    </div>
+    <div class="chart-card-body">
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="deptBar"></canvas>
+      </div>
+    </div>
+  </div>
+  <table class="drill-table">
+      <thead><tr>
+        <th>科室</th><th>样本量</th><th>组内占比</th><th>总体占比</th><th>百分点差</th>
+      </tr></thead>
+      <tbody><tr class="">
+          <td>肿瘤科</td>
+          <td class="num">22</td>
+          <td class="num">45.2%</td>
+          <td class="num">38.5%</td>
+          <td class="num pos">+6.7</td>
+        </tr><tr class="">
+          <td>乳腺科</td>
+          <td class="num">15</td>
+          <td class="num">36.0%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-2.5</td>
+        </tr><tr class="">
+          <td>内科</td>
+          <td class="num">5</td>
+          <td class="num">28.0%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-10.5</td>
+        </tr><tr class="row-warn">
+          <td>外科<span class="warn-tag">样本量有限，仅供参考</span></td>
+          <td class="num">3</td>
+          <td class="num">25.0%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-13.5</td>
+        </tr></tbody>
+    </table>
+</div>
+
+<!-- ══ 六、MSL 下钻分析 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">六</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">MSL 下钻分析</div>
+      <div class="sec-title-en">MSL-Level Drilldown</div>
+    </div>
+  </div>
+  
+  <p class="no-data">暂无MSL下钻数据</p>
+</div>
+
+<!-- ══ 七、区域差异分析 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">七</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">区域差异分析</div>
+      <div class="sec-title-en">Regional Variation Analysis</div>
+    </div>
+  </div>
+  
+  <div class="chart-card" style="margin-bottom:16px;">
+    <div class="chart-card-head">
+      <span class="chart-card-title">大区观点分布</span>
+      <span class="chart-card-desc">华北 / 华南 / 华东等区域差异</span>
+    </div>
+    <div class="chart-card-body">
+      <div class="chart-wrap" style="height:180px;"><canvas id="regionBar"></canvas></div>
+    </div>
+  </div>
+  <table class="drill-table">
+      <thead><tr>
+        <th>区域</th><th>样本量</th><th>组内占比</th><th>总体占比</th><th>百分点差</th>
+      </tr></thead>
+      <tbody><tr class="">
+          <td>华北</td>
+          <td class="num">14</td>
+          <td class="num">43.0%</td>
+          <td class="num">38.5%</td>
+          <td class="num pos">+4.5</td>
+        </tr><tr class="">
+          <td>华东</td>
+          <td class="num">18</td>
+          <td class="num">37.2%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-1.3</td>
+        </tr><tr class="">
+          <td>华南</td>
+          <td class="num">9</td>
+          <td class="num">39.8%</td>
+          <td class="num">38.5%</td>
+          <td class="num pos">+1.3</td>
+        </tr><tr class="row-warn">
+          <td>西部<span class="warn-tag">样本量有限，仅供参考</span></td>
+          <td class="num">4</td>
+          <td class="num">31.5%</td>
+          <td class="num">38.5%</td>
+          <td class="num neg">-7.0</td>
+        </tr></tbody>
+    </table>
+</div>
+
+<!-- ══ 八、风险与局限性 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">八</span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">风险与局限性</div>
+      <div class="sec-title-en">Risk &amp; Limitations</div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-card-body" style="padding:18px 22px;">
+      <div class="risk-item"><span class="risk-icon">⚠️</span><span>样本量限制：部分省份 / 科室 / MSL 维度样本量 &lt;5，分析结论仅供参考，不建议作为独立决策依据。已在下钻表格中以<span style="background:var(--c-amber);color:#5a4000;font-size:10px;padding:0 4px;border-radius:2px;font-family:var(--mono);">样本量有限，仅供参考</span>标注。</span></div>
+      <div class="risk-item"><span class="risk-icon">📊</span><span>数据来源：本报告所有数字均来自输入 JSON 中的 <code style="background:var(--surface);padding:1px 5px;border-radius:2px;font-family:var(--mono);font-size:11px;">option_summaries</code> 与 <code style="background:var(--surface);padding:1px 5px;border-radius:2px;font-family:var(--mono);font-size:11px;">drilldowns</code> 字段，严禁引入外部事实或推测。</span></div>
+      <div class="risk-item"><span class="risk-icon">🔒</span><span>合规提示：本报告属内部机密文件，所有医生引言已匿名处理。</span></div>
+      <div class="risk-item"><span class="risk-icon">🧪</span><span>医学标注参考：医学背景基于 <code style="background:var(--surface);padding:1px 5px;border-radius:2px;font-family:var(--mono);font-size:11px;">concatenated_医学标注</code> 字段理解医生反馈语境，不做独立医学判断。</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 九、结论与医学建议 ══ -->
+<div class="section">
+  <div class="sec-header">
+    <div class="sec-num"><span class="sec-num-big">九</span><span class="sec-num-big"></span><span class="sec-num-sub">SECTION</span></div>
+    <div class="sec-title-block">
+      <div class="sec-title-zh">结论与医学建议</div>
+      <div class="sec-title-en">Conclusions &amp; Medical Recommendations</div>
+    </div>
+  </div>
+  <div class="conclusion-grid">
+    
+    <div class="conclusion-card">
+      <div class="conc-title">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--p800);color:#fff;border-radius:50%;font-family:var(--mono);font-size:11px;font-weight:700;">A</span>
+        A. 初诊IV期患者治疗紧迫性更高，需要快速缩瘤（38.5%）
+      </div>
+      <div class="conc-body">基于 18 位医生反馈，此观点位居认同度第 1 位，反映临床实践中对该治疗维度的主流关切。建议 MSL 在区域拜访中重点围绕此方向开展学术交流。</div>
+    </div>
+    <div class="conclusion-card">
+      <div class="conc-title">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--p800);color:#fff;border-radius:50%;font-family:var(--mono);font-size:11px;font-weight:700;">B</span>
+        B. 初诊IV期患者更易达到CR，需要深度持久缓解（24.4%）
+      </div>
+      <div class="conc-body">基于 11 位医生反馈，此观点位居认同度第 2 位，反映临床实践中对该治疗维度的主流关切。建议 MSL 在区域拜访中重点围绕此方向开展学术交流。</div>
+    </div>
+    <div class="conclusion-card" style="border-top-color:var(--c-teal);">
+      <div class="conc-title">🗺️ 区域差异建议</div>
+      <div class="conc-body">数据显示 4 个区域在选项认同度上存在差异，建议制定差异化沟通策略，对百分点差异 >10 的区域优先投入医学资源。</div>
+    </div>
+    <div class="conclusion-card" style="border-top-color:var(--c-amber);">
+      <div class="conc-title">⚗️ 后续行动建议</div>
+      <div class="conc-body">针对样本量不足的维度，建议后续调研补充；对于医生提出的克服原发耐药、深度缓解等核心诉求，建议结合真实世界数据进一步提供循证支持。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 页脚 ══ -->
+<footer class="rpt-footer">
+  <span class="footer-title">医学洞察分析报告</span>
+  <span class="footer-text">医学事务部 · 战略运营组</span>
+  <span class="footer-text">生成于 2026年04月16日 10:41（北京时间）</span>
+  <span class="footer-text">严格保密 · 内部使用</span>
+</footer>
+
+</div><!-- /.page -->
+
+<script>
+/* ── 数据注入 ── */
+const OPT_DATA  = [{"label":"A. 初诊IV期患者治疗紧迫性更高，需要快速缩瘤","shortLabel":"A","pct":38.5,"count":18,"reasons":[{"reason":"初诊患者肿瘤负荷高，需快速缩瘤缓解症状","representative_quotes":[{"source_quote":"初诊的病人往往肿瘤负荷很大，首先需要快速让肿瘤缩小"},{"source_quote":"这类患者一旦明确诊断就需要立即控制病情，不能等待"}]},{"reason":"生存质量改善需要迅速见效","representative_quotes":[{"source_quote":"患者症状明显，快速响应是首要目标"}]}]},{"label":"B. 初诊IV期患者更易达到CR，需要深度持久缓解","shortLabel":"B","pct":24.4,"count":11,"reasons":[{"reason":"初诊患者免疫功能较好，更易达到CR","representative_quotes":[{"source_quote":"未经化疗的患者骨髓储备好，耐受性强，CR率更高"}]}]},{"label":"C. 初诊IV期患者无法判断对H的敏感性，需克服原发耐药","shortLabel":"C","pct":28.9,"count":13,"reasons":[{"reason":"原发耐药风险不可忽视","representative_quotes":[{"source_quote":"初诊患者HER2靶向治疗敏感性未知，需要有克服原发耐药的手段"}]}]},{"label":"D. 现有方案疗效安全性均已满意","shortLabel":"D","pct":6.7,"count":3,"reasons":[{"reason":"现有双靶方案已足够","representative_quotes":[{"source_quote":"目前HP+化疗已经是标准方案，效果满意"}]}]},{"label":"E. 其他","shortLabel":"E","pct":1.5,"count":0,"reasons":[]}];
+const PROV_DATA = [{"label":"北京","sampleSize":12,"shareInBucket":42.1,"overallShare":38.5,"pctPointDiff":3.6},{"label":"上海","sampleSize":10,"shareInBucket":35.8,"overallShare":38.5,"pctPointDiff":-2.7},{"label":"广东","sampleSize":8,"shareInBucket":40.2,"overallShare":38.5,"pctPointDiff":1.7},{"label":"浙江","sampleSize":3,"shareInBucket":28.5,"overallShare":38.5,"pctPointDiff":-10}];
+const DEPT_DATA = [{"label":"肿瘤科","sampleSize":22,"shareInBucket":45.2,"overallShare":38.5,"pctPointDiff":6.7},{"label":"乳腺科","sampleSize":15,"shareInBucket":36,"overallShare":38.5,"pctPointDiff":-2.5},{"label":"内科","sampleSize":5,"shareInBucket":28,"overallShare":38.5,"pctPointDiff":-10.5},{"label":"外科","sampleSize":3,"shareInBucket":25,"overallShare":38.5,"pctPointDiff":-13.5}];
+const MSL_DATA  = [];
+const RGN_DATA  = [{"label":"华北","sampleSize":14,"shareInBucket":43,"overallShare":38.5,"pctPointDiff":4.5},{"label":"华东","sampleSize":18,"shareInBucket":37.2,"overallShare":38.5,"pctPointDiff":-1.3},{"label":"华南","sampleSize":9,"shareInBucket":39.8,"overallShare":38.5,"pctPointDiff":1.3},{"label":"西部","sampleSize":4,"shareInBucket":31.5,"overallShare":38.5,"pctPointDiff":-7}];
+
+const COLORS = {
+  primary: ['#830051','#9A3374','#B36697','#CC99B9','#E6CCDC'],
+  full:    ['#830051','#9A3374','#B36697','#CC99B9','#E6CCDC','#F0AB00','#68D2DF','#C4D600','#9DB0AC']
+};
+
+/* 公共 Chart 默认 */
+Chart.defaults.font.family = "'Inter','Noto Sans SC',sans-serif";
+Chart.defaults.color = '#7A4060';
+
+/* ── 1. 头部总览甜甜圈 ── */
+if (document.getElementById('overviewDonut') && OPT_DATA.length > 0) {
+  new Chart(document.getElementById('overviewDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: OPT_DATA.map(o => o.shortLabel),
+      datasets: [{ data: OPT_DATA.map(o => o.pct), backgroundColor: COLORS.primary, borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { cutout: '78%', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.parsed.toFixed(1) + '%' } } } }
+  });
+}
+
+/* ── 2. 选项饼图 ── */
+if (document.getElementById('optPie') && OPT_DATA.length > 0) {
+  new Chart(document.getElementById('optPie'), {
+    type: 'pie',
+    data: {
+      labels: OPT_DATA.map(o => o.shortLabel + ' ' + o.pct.toFixed(1) + '%'),
+      datasets: [{ data: OPT_DATA.map(o => o.pct), backgroundColor: COLORS.full, borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 11 }, padding: 12, color: '#3A1828' } },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.toFixed(1) + '% (' + (OPT_DATA[ctx.dataIndex]?.count || '—') + '人)' } }
+      }
+    }
+  });
+}
+
+/* ── 3. 选项柱状图 ── */
+if (document.getElementById('optBar') && OPT_DATA.length > 0) {
+  const sorted = [...OPT_DATA].sort((a,b) => b.pct - a.pct);
+  new Chart(document.getElementById('optBar'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(o => o.shortLabel),
+      datasets: [{
+        label: '占比 %',
+        data: sorted.map(o => o.pct),
+        backgroundColor: COLORS.primary,
+        borderRadius: 3, borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.toFixed(1) + '%' } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#3A1828' } },
+        y: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 10, family: 'JetBrains Mono' }, color: '#7A4060' }, beginAtZero: true, max: 100 }
+      }
+    }
+  });
+}
+
+/* ── 4. 省份条形图（组内占比）── */
+if (document.getElementById('provinceBar') && PROV_DATA.length > 0) {
+  new Chart(document.getElementById('provinceBar'), {
+    type: 'bar',
+    data: {
+      labels: PROV_DATA.map(d => d.label),
+      datasets: [{
+        label: '组内占比 %',
+        data: PROV_DATA.map(d => d.shareInBucket),
+        backgroundColor: '#830051',
+        borderRadius: 2, borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A4060' }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#4A1030' } }
+      }
+    }
+  });
+}
+
+/* ── 5. 省份百分点差异 ── */
+if (document.getElementById('provinceDiff') && PROV_DATA.length > 0) {
+  new Chart(document.getElementById('provinceDiff'), {
+    type: 'bar',
+    data: {
+      labels: PROV_DATA.map(d => d.label),
+      datasets: [{
+        label: '百分点差异',
+        data: PROV_DATA.map(d => d.pctPointDiff),
+        backgroundColor: PROV_DATA.map(d => d.pctPointDiff >= 0 ? '#830051' : '#CC99B9'),
+        borderRadius: 2, borderWidth: 0
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A4060' } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#4A1030' } }
+      }
+    }
+  });
+}
+
+/* ── 6. 科室图 ── */
+if (document.getElementById('deptBar') && DEPT_DATA.length > 0) {
+  new Chart(document.getElementById('deptBar'), {
+    type: 'bar',
+    data: {
+      labels: DEPT_DATA.map(d => d.label),
+      datasets: [
+        { label: '组内占比%', data: DEPT_DATA.map(d => d.shareInBucket), backgroundColor: '#830051', borderRadius: 2, borderWidth: 0 },
+        { label: '总体占比%', data: DEPT_DATA.map(d => d.overallShare), backgroundColor: '#CC99B9', borderRadius: 2, borderWidth: 0 }
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 8, boxHeight: 8, font: { size: 10 } } } },
+      scales: {
+        x: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A4060' }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#4A1030' } }
+      }
+    }
+  });
+}
+
+/* ── 7. MSL 图 ── */
+if (document.getElementById('mslBar') && MSL_DATA.length > 0) {
+  new Chart(document.getElementById('mslBar'), {
+    type: 'bar',
+    data: {
+      labels: MSL_DATA.map(d => d.label),
+      datasets: [{ label: '组内占比%', data: MSL_DATA.map(d => d.shareInBucket), backgroundColor: '#9A3374', borderRadius: 2, borderWidth: 0 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A4060' }, beginAtZero: true },
+        y: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#4A1030' } }
+      }
+    }
+  });
+}
+
+/* ── 8. 区域图 ── */
+if (document.getElementById('regionBar') && RGN_DATA.length > 0) {
+  new Chart(document.getElementById('regionBar'), {
+    type: 'bar',
+    data: {
+      labels: RGN_DATA.map(d => d.label),
+      datasets: [
+        { label: '组内占比%', data: RGN_DATA.map(d => d.shareInBucket), backgroundColor: '#830051', borderRadius: 3, borderWidth: 0 },
+        { label: '百分点差异', data: RGN_DATA.map(d => d.pctPointDiff), backgroundColor: '#F0AB00', borderRadius: 3, borderWidth: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', align: 'end', labels: { boxWidth: 8, boxHeight: 8, font: { size: 10 } } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#4A1030' } },
+        y: { grid: { color: '#F2E6ED' }, ticks: { font: { size: 9, family: 'JetBrains Mono' }, color: '#7A4060' } }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
